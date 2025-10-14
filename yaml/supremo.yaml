@@ -31,7 +31,7 @@ Artifacts:
     Domains:
     - supremocontrol.com
     - '*.supremocontrol.com'
-    - '* .nanosystems.it'
+    - '*.nanosystems.it'
     Ports: []
 Detections:
 - Sigma: https://github.com/magicsword-io/LOLRMM/blob/main/detections/sigma/supremo_network_sigma.yml
