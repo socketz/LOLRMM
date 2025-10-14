@@ -24,8 +24,10 @@ Artifacts:
   Network:
   - Description: Known remote domains
     Domains:
-    - "*.rel.tunnels.api.visualstudio.com"
     - "*.devtunnels.ms"
+    - "*-data.rel.tunnels.api.visualstudio.com"
+    - "*.rel.tunnels.api.visualstudio.com"
+    - "*.global.rel.tunnels.api.visualstudio.com"
     Ports: []
 Detections:
 - Sigma: https://github.com/magicsword-io/LOLRMM/blob/main/detections/sigma/dev_tunnels__aka_visual_studio_dev_tunnel__network_sigma.yml
@@ -33,4 +35,5 @@ Detections:
     Dev Tunnel) RMM tool
 References:
 - https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows
+- https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/security
 Acknowledgement: []
