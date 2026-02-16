@@ -23,40 +23,40 @@ Details:
     SupportedOS: []
     Capabilities: []
     Vulnerabilities: []
-    InstallationPaths:
+    InstallationPaths: []
 Artifacts:
     Disk: []
     EventLog: []
     Registry: []
     Network:
-    - Description: Known remote domains
-      Domains:
-        - '*.logmein-gateway.com'
-        - '*.logmein.com'
-        - '*.logmein.eu'
-        - '*.logmein123.com'
-        - '*.logmein123.eu'
-        - '*.logmeinrescue.com'
-        - '*.logmeinrescue.eu'
-        - '*.logmeininc.com'
-        - '*.logmein.com'
-        - '*.logmein.eu'
-        - '*.logme.in'
-        - '*.hamachi.cc'
-        - '*.internap.net'
-        - '*.internapcdn.net'
-        - '*.logmeininc.com'
-        - '*.getgo.com'
-        - '*.goto.com'
-        - '*.logmeininc.com'
-        - '*.rescuemobile.com'
-        - '*.oty.com'
-        - '*.support.me'
-      Ports:
-        - 443
-        - 53
-        - 15000
-        - 3489
+        - Description: Known remote domains
+          Domains:
+              - '*.logmein-gateway.com'
+              - '*.logmein.com'
+              - '*.logmein.eu'
+              - '*.logmein123.com'
+              - '*.logmein123.eu'
+              - '*.logmeinrescue.com'
+              - '*.logmeinrescue.eu'
+              - '*.logmeininc.com'
+              - '*.logmein.com'
+              - '*.logmein.eu'
+              - '*.logme.in'
+              - '*.hamachi.cc'
+              - '*.internap.net'
+              - '*.internapcdn.net'
+              - '*.logmeininc.com'
+              - '*.getgo.com'
+              - '*.goto.com'
+              - '*.logmeininc.com'
+              - '*.rescuemobile.com'
+              - '*.oty.com'
+              - '*.support.me'
+          Ports:
+              - 443
+              - 53
+              - 15000
+              - 3489
 Detections:
     - Sigma: https://github.com/SigmaHQ/sigma/blob/782f0f524e6f797ea114fe0d87b22cb4abaa6b7c/rules/windows/dns_query/dns_query_win_remote_access_software_domains_non_browsers.yml
       Description: DNS Query To Remote Access Software Domain From Non-Browser App

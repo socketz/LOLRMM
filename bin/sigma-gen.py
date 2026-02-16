@@ -5,6 +5,34 @@ import uuid
 from typing import Dict, List, Any
 
 
+def _load_yaml_file(path: str) -> Dict[str, Any]:
+    with open(path, "r") as f:
+        data = yaml.safe_load(f)
+
+        return data
+
+
+def _normalize_sigma_rule_for_comparison(rule: Dict[str, Any]) -> Dict[str, Any]:
+    normalized = dict(rule)
+    normalized.pop("id", None)
+    normalized.pop("date", None)
+    normalized.pop("modified", None)
+    return normalized
+
+
+def _sigma_rule_has_real_changes(filepath: str, new_rule: Dict[str, Any]) -> bool:
+    if not os.path.exists(filepath):
+        return True
+    
+    try:
+        existing_rule = _load_yaml_file(filepath)
+    except Exception as e:
+        # If there's an error loading the existing rule, assume it must be changed to be safe
+        print(f"Error loading existing Sigma rule from {filepath}: {e}\nAssuming changes are needed.")
+        return True
+    return _normalize_sigma_rule_for_comparison(existing_rule) != _normalize_sigma_rule_for_comparison(new_rule)
+
+
 def extract_artifacts(yaml_data: Dict[str, Any]) -> Dict[str, List[str]]:
     artifacts = {"files": [], "registry": [], "network": [], "processes": []}
 
@@ -36,79 +64,20 @@ def extract_artifacts(yaml_data: Dict[str, Any]) -> Dict[str, List[str]]:
 
 
 def write_sigma_rule(rule: Dict[str, Any], filepath: str) -> None:
-    """Write a Sigma rule with proper formatting."""
+    """Write a Sigma rule using PyYAML to guarantee valid escaping and structure."""
     with open(filepath, "w", encoding="utf-8") as f:
-        # Title
-        f.write(f"title: {rule['title']}\n")
-
-        # ID
-        f.write(f"id: {rule['id']}\n")
-
-        # Status
-        f.write(f"status: {rule['status']}\n")
-
-        # Description with pipe syntax
-        f.write("description: |\n")
-        f.write(f"    {rule['description']}\n")
-
-        # References
-        f.write("references:\n")
-        for ref in rule["references"]:
-            f.write(f"    - {ref}\n")
-
-        # Author
-        f.write(f"author: {rule['author']}\n")
-
-        # Date (without quotes)
-        f.write(f"date: {rule['date']}\n")
-
-        # Modified (only if present)
-        if "modified" in rule:
-            f.write(f"modified: {rule['modified']}\n")
-
-        # Tags
-        f.write("tags:\n")
-        for tag in rule["tags"]:
-            f.write(f"    - {tag}\n")
-
-        # Logsource
-        f.write("logsource:\n")
-        f.write(f"    product: {rule['logsource']['product']}\n")
-        f.write(f"    category: {rule['logsource']['category']}\n")
-
-        # Detection
-        f.write("detection:\n")
-        detection = rule["detection"]
-        for key, value in detection.items():
-            if key == "condition":
-                continue
-            f.write(f"    {key}:\n")
-            if isinstance(value, dict):
-                for subkey, subvalue in value.items():
-                    if isinstance(subvalue, list):
-                        # Single element: write inline, multiple elements: write as list
-                        if len(subvalue) == 1:
-                            f.write(f"        {subkey}: {subvalue[0]}\n")
-                        else:
-                            f.write(f"        {subkey}:\n")
-                            for item in subvalue:
-                                f.write(f"            - {item}\n")
-                    else:
-                        f.write(f"        {subkey}: {subvalue}\n")
-        f.write(f"    condition: {detection['condition']}\n")
-
-        # Falsepositives
-        f.write("falsepositives:\n")
-        for fp in rule["falsepositives"]:
-            f.write(f"    - {fp}\n")
-
-        # Level
-        f.write(f"level: {rule['level']}\n")
+        yaml.safe_dump(
+            rule,
+            f,
+            sort_keys=False,
+            default_flow_style=False,
+            allow_unicode=True,
+            width=4096,
+        )
 
 
 def generate_sigma_rules(yaml_file: str, output_dir: str) -> List[Dict[str, Any]]:
-    with open(yaml_file, "r") as f:
-        data = yaml.safe_load(f)
+    data = _load_yaml_file(yaml_file)
 
     name = data.get("Name", "Unknown")
     artifacts = extract_artifacts(data)
@@ -180,8 +149,8 @@ def generate_sigma_rules(yaml_file: str, output_dir: str) -> List[Dict[str, Any]
             output_file = f"{safe_name}_{artifact_type}_sigma.yml"
             full_output_path = os.path.join(output_dir, output_file)
 
-            # Write with custom formatting
-            write_sigma_rule(rule, full_output_path)
+            if _sigma_rule_has_real_changes(full_output_path, rule):
+                write_sigma_rule(rule, full_output_path)
 
             github_url = f"https://github.com/magicsword-io/LOLRMM/blob/main/detections/sigma/{output_file}"
             generated_rules.append(
@@ -197,11 +166,12 @@ def generate_sigma_rules(yaml_file: str, output_dir: str) -> List[Dict[str, Any]
 def update_yaml_with_sigma_rules(
     yaml_file: str, sigma_rules: List[Dict[str, Any]]
 ) -> None:
-    with open(yaml_file, "r") as f:
-        data = yaml.safe_load(f)
+    data = _load_yaml_file(yaml_file)
 
     if "Detections" not in data:
         data["Detections"] = []
+
+    original_detections = list(data["Detections"])
 
     # Remove existing generated rules
     data["Detections"] = [
@@ -213,9 +183,14 @@ def update_yaml_with_sigma_rules(
     ]
 
     # Add new generated rules
-    data["Detections"].extend(sigma_rules)
+    updated_detections = data["Detections"] + sigma_rules
 
-    with open(yaml_file, "w") as f:
+    if updated_detections == original_detections:
+        return
+
+    data["Detections"] = updated_detections
+
+    with open(yaml_file, "w", encoding="utf-8") as f:
         yaml.dump(data, f, sort_keys=False)
 
 
