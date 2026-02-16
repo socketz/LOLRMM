@@ -13,10 +13,10 @@ Ammyy Admin is a remote monitoring and management (RMM) tool. Ammyy admin has be
 
 ### Details
 <Details author={"@kostsatsale"}
-         category={""}
+         category={"RMM"}
          created={"2024-05-08"}
          website={"https://www.ammyy.com"}
-         lastModified={"None"}
+         lastModified={"2024-05-08"}
          privileges={"Curent User"}
          free={ "Yes/1 active session at a time" }
          verification={ "None" }
@@ -51,7 +51,7 @@ Ammyy Admin is a remote monitoring and management (RMM) tool. Ammyy admin has be
 
 #### Network Artifacts
 <EuiSpacer size="xl"/>
-<NetworkArtifactsTable data={ [{"Description": "Known remote domains", "Domains": ["ammyy.com", "*ammyy.com", "136.243.104.235", "136.243.104.242", "136.243.18.122"], "Ports": [5931, 80, 443, 8080]}] }/>
+<NetworkArtifactsTable data={ [{"Description": "Known remote domains and router IP addresses", "Domains": ["ammyy.com", "*ammyy.com"], "Ports": [5931, 80, 443, 8080]}, {"Description": "Known router IP addresses (TCP connections)", "Domains": ["136.243.104.235", "136.243.104.242", "136.243.18.122"], "Ports": [443]}] }/>
 
 
 
@@ -60,6 +60,14 @@ Ammyy Admin is a remote monitoring and management (RMM) tool. Ammyy admin has be
 - Detects the execution of the Ammy Admin RMM agent for remote management.
   - [Sigma Rule](https://github.com/tsale/Sigma_rules/blob/main/Threat%20Hunting%20Queries/ammyy_admin.yml)
   - **Detecting Ammy Admin RMM Agent Execution**
+- Detects potential registry activity of Ammyy Admin RMM tool
+  - [Sigma Rule](https://github.com/magicsword-io/LOLRMM/blob/main/detections/sigma/ammyy_admin_registry_sigma.yml)
+- Detects potential network activity of Ammyy Admin RMM tool
+  - [Sigma Rule](https://github.com/magicsword-io/LOLRMM/blob/main/detections/sigma/ammyy_admin_network_sigma.yml)
+- Detects potential files activity of Ammyy Admin RMM tool
+  - [Sigma Rule](https://github.com/magicsword-io/LOLRMM/blob/main/detections/sigma/ammyy_admin_files_sigma.yml)
+- Detects potential processes activity of Ammyy Admin RMM tool
+  - [Sigma Rule](https://github.com/magicsword-io/LOLRMM/blob/main/detections/sigma/ammyy_admin_processes_sigma.yml)
 
 ### References
 - [https://www.ammyy.com/en/admin_security.html](https://www.ammyy.com/en/admin_security.html)
